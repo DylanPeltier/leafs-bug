@@ -1,0 +1,30 @@
+services:
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+
+  backend:
+    build:
+      context: ./backend
+    environment:
+      PORT: 3000
+      REDIS_URL: redis://redis:6379
+      TEAM_ID: 21
+      CACHE_TTL_SECONDS: 5
+      ESPN_SCOREBOARD_URL: https://site.api.espn.com/apis/site/v2/sports/hockey/nhl/scoreboard
+    depends_on:
+      - redis
+    ports:
+      - "3100:3100"
+
+  frontend:
+    build:
+      context: ./frontend
+    environment:
+      BACKEND_URL: http://backend:3000
+      PORT: 3001
+    depends_on:
+      - backend
+    ports:
+      - "3001:3001"
